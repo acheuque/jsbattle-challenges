@@ -7,49 +7,41 @@ tank.init(function(settings, info) {
 	// initialize tank here
   
 });
+var degrees = null;
+
 
 tank.loop(function(state, control) {
 	// write your tank logic here
+  console.log(state.radar.enemy);
+
+  
   if(state.radar.enemy == null) {
 	  control.RADAR_TURN = 1
   } else {
-  	control.RADAR_TURN = 0
-    const delta = 10;
-    const degrees = state.radar.enemy.angle;
-    control.GUN_TURN = getRotationSpeed(state.gun.angle, degrees);
-    control.SHOOT = getShootSpeed(state.gun.angle, degrees) ;
-    /*
-    if( isInAngle(state.gun.angle, degrees) ) {
-      control.GUN_TURN = 0;
-      control.SHOOT = 1;
-    } else {
-      control.GUN_TURN = 0.5 ;
-    }
-    */
+		control.RADAR_TURN = 0
+
+    degrees = state.radar.enemy.angle;
+    
+    // console.log("enemy", degrees, "gun", state.gun.angle);
+    control.TURN = getRotationSpeed(state.angle, degrees);
+    control.SHOOT = getShootSpeed(state.angle, degrees) ;
   }
   
 });
 
-function isInAngle(currentAngle, targetAngle) {
-  let roundedCurrent = Math.round(currentAngle)
-  let roundedTarget = Math.round(targetAngle);
-  roundedCurrent = normalizeAngle(roundedCurrent);
-	roundedTarget = normalizeAngle(roundedTarget);
-
-  console.log( roundedCurrent, roundedTarget, ( roundedTarget + 180 )% 360);
-
-  return roundedCurrent == ( roundedTarget + 180 )% 360 ;
-}
-
 function getRotationSpeed(currentAngle, targetAngle) {
-  let roundedCurrent = round(currentAngle, 1)
-  let roundedTarget = round(targetAngle, 1);
+  let roundedCurrent = (round(currentAngle, 1));
+  let roundedTarget = (round(targetAngle, 1));
+
+  //console.log("roundedCurrent", roundedCurrent, "roundedTarget", roundedTarget, "diff", roundedCurrent - roundedTarget);
+
   result = Math.sin(toRadians(roundedCurrent - roundedTarget));  
+  
   return result;
 }
 
 function getShootSpeed(currentAngle, targetAngle) {
-	return 1 - Math.pow(Math.abs(getRotationSpeed(currentAngle, targetAngle)), 0.25);
+	return 1 - Math.pow(Math.abs(getRotationSpeed(currentAngle, targetAngle)), 0.75);
 }
 
 function normalizeAngle(angle) {
@@ -66,4 +58,16 @@ function  toRadians(degrees)
 {
   var pi = Math.PI;
   return degrees * (pi/180);
+}
+
+
+function isInAngle(currentAngle, targetAngle) {
+  let roundedCurrent = Math.round(currentAngle)
+  let roundedTarget = Math.round(targetAngle);
+  roundedCurrent = normalizeAngle(roundedCurrent);
+	roundedTarget = normalizeAngle(roundedTarget);
+
+  console.log( roundedCurrent, roundedTarget, ( roundedTarget + 180 )% 360);
+
+  return roundedCurrent == ( roundedTarget  )% 360 ;
 }
